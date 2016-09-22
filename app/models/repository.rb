@@ -7,5 +7,7 @@ class Repository
   include NoBrainer::Document
   include NoBrainer::Document::Timestamps
 
+  validates :url, presence: true
+
   field :url, type: String
 end

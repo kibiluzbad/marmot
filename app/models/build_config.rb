@@ -12,9 +12,9 @@ class BuildConfig
   field :image,       type: String
   field :language,    type: String
   field :version,     type: String
-  field :setup,       type: Set
+  field :setup_steps,       type: Set
   field :build_steps, type: Set
-  field :test,        type: Set
+  field :test_steps,        type: Set
   field :deploy,      type: Set
 
   def method_missing(method_name, *args, &block)

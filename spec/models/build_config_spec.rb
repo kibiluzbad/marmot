@@ -16,7 +16,6 @@ RSpec.describe BuildConfig, type: :model do
       version = '6.6.0'
       build_config.node_version(version)
       node_version = build_config.node_version
-
       expect(node_version).to eq version
     end
 

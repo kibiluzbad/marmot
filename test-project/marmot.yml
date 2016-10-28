@@ -1,0 +1,10 @@
+image: node
+node_version: '7.0.0'
+setup:
+  - npm update -g npm
+build:
+  - npm install
+test:
+  - npm test
+deploy:
+custom_pipeline:

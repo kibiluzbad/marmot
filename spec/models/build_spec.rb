@@ -7,6 +7,8 @@ RSpec.describe Build, type: :model do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
+    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+                             project: project)
 
     new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
                              project: project,
@@ -20,9 +22,11 @@ RSpec.describe Build, type: :model do
 
   it 'build exec should set buildconfig language_version' do
     # TODO: Use factory girl
+    
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
-
+    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+                             project: project)                         
     new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
                              project: project,
                              marmot_file_path: File.expand_path('../../../test-project/marmot.yml', __FILE__))
@@ -36,6 +40,8 @@ RSpec.describe Build, type: :model do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
+    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+                             project: project)
 
     new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
                              project: project,
@@ -51,6 +57,8 @@ RSpec.describe Build, type: :model do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
+    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+                             project: project)
 
     new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
                              project: project,
@@ -66,6 +74,8 @@ RSpec.describe Build, type: :model do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
+    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+                             project: project)
 
     new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
                              project: project,
@@ -81,6 +91,8 @@ RSpec.describe Build, type: :model do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
+    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+                             project: project)
 
     new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
                              project: project,
@@ -96,6 +108,8 @@ RSpec.describe Build, type: :model do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
+    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+                             project: project)
 
     new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
                              project: project,

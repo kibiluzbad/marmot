@@ -20,8 +20,10 @@ class Build
   field :commit, type: String
   field :marmot_file_path, type: String
   field :output, type: Text
+  field :status, type: Text
 
   def exec
+    self.status = 'started'
     config = load_config
     build YAML.load_file(marmot_file_path)
     config.save

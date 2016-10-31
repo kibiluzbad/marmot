@@ -7,6 +7,7 @@ class Repository
   include NoBrainer::Document
   include NoBrainer::Document::Timestamps
 
+  belongs_to :project
   validates :url, presence: true
 
   field :url, type: String

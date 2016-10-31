@@ -8,6 +8,6 @@
 class BuildsController < ApplicationController
   def create
     return head :unprocessable_entity unless params[:commit].present?
-    head :no_content
+    head :created
   end
 end

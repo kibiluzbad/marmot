@@ -24,8 +24,9 @@ class Build
 
   def exec
     self.status = 'started'
+    project.repository.clone commit
     config = load_config
-    build YAML.load_file(marmot_file_path)
+    build YAML.load(project.repository.get_marmot_file(commit))
     config.save
   end
 

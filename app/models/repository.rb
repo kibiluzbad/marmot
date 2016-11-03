@@ -14,8 +14,10 @@ class Repository
   field :url, type: String
 
   def clone(commit)
-    @git = Git.clone(url, commit,bare: true, 
-                          path: File.expand_path('repos'))
+    repos_path = File.expand_path('repos')
+    repo_path = File.join(repos_path, commit)
+    @git = Git.open(repo_path) if FileTest.exist?(repo_path) 
+    @git = Git.clone(url, commit, path: repos_path) if @git.nil?
   end
 
   def get_marmot_file(commit)

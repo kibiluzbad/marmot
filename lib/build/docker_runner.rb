@@ -11,8 +11,6 @@ module MarmotBuild
       content += "WORKDIR /app/current\r\n"
       content += "RUN git clone #{project.repository.url} /app/current\r\n"
       
-      puts build_config
-
       if !build_config.setup_steps.nil?
         build_config.setup_steps.each do |step|
           content += "RUN #{step}\r\n"
@@ -44,13 +42,15 @@ module MarmotBuild
                                             Cmd: commands)
       container.start
       self.status = 'running'
-      container.wait
+      save
+      container.wait(3600)
       error = false
       container.streaming_logs(stdout: true) do |stream, chunk|
         self.output += chunk
         error = true if stream == 'stderr'
         save
       end
+      
       self.status = 'success' unless error
       self.status = 'failed' if error
       save

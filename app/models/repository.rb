@@ -15,7 +15,7 @@ class Repository
 
   def clone(commit)
     @git = Git.clone(url, commit,bare: true, 
-                          path: File.expand_path('../../../repos'))
+                          path: File.expand_path('repos'))
   end
 
   def get_marmot_file(commit)

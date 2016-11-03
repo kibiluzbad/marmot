@@ -20,7 +20,7 @@ class Build
   field :commit, type: String
   field :marmot_file_path, type: String
   field :output, type: Text
-  field :status, type: Text
+  field :status, type: String
 
   def exec
     self.status = 'started'

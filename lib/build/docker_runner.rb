@@ -4,14 +4,19 @@ module MarmotBuild
   module DockerRunner
     def create_docker_file
       
-      content = "FROM #{build_config.image}:#{build_config.version}\r\n"
+      content = "FROM #{build_config.image}:#{build_config.version || 'latest'}\r\n"
       content += "RUN apt-get update\r\n"
       content += "RUN apt-get install git -y\r\n"
       content += "RUN mkdir -p /app/current\r\n"
       content += "WORKDIR /app/current\r\n"
       content += "RUN git clone #{project.repository.url} /app/current\r\n"
-      build_config.setup_steps.each do |step|
-        content += "RUN #{step}\r\n"
+      
+      puts build_config
+
+      if !build_config.setup_steps.nil?
+        build_config.setup_steps.each do |step|
+          content += "RUN #{step}\r\n"
+        end
       end
       
       path = File.expand_path("../../../builds/#{id}", __FILE__)

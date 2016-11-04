@@ -39,13 +39,13 @@ module MarmotBuild
       end
       
       container = Docker::Container.create(Image: image.id,
-                                            Cmd: commands)
+                                           Cmd: ['bash'],
+                                           Tty: true)
       container.start
       self.status = 'running'
       save
-      container.wait(3600)
       error = false
-      container.streaming_logs(stdout: true) do |stream, chunk|
+      container.exec(commands) do |stream, chunk|
         self.output += chunk
         error = true if stream == 'stderr'
         save

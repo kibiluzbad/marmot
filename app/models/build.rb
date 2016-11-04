@@ -22,8 +22,22 @@ class Build
   field :output, type: Text
   field :status, type: String
 
+  def changes
+     results = super
+     results.each do |result|
+       property_name = result[0]
+       ActionCable.server.broadcast 'messages',
+                                    property: property_name,
+                                    oldValue: result[1][0],
+                                    newValue: result[1][1]
+
+     end
+     results
+  end
+
   def exec
     self.status = 'started'
+    
     project.repository.clone commit
     config = load_config
     build YAML.load(project.repository.get_marmot_file(commit))

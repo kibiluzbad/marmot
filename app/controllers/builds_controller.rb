@@ -14,12 +14,9 @@ class BuildsController < ApplicationController
     return head :unprocessable_entity unless params[:commit].present?
     return head :unprocessable_entity unless params[:project].present?
     
-    project = Project.where(name: params[:project]).first
 
-    build = Build.create(project: project,
-                         commit: params[:commit],
-                         status: 'created')
-    build.exec
+    BuildJob.perform_later project: params[:project],
+                           commit: params[:commit]
     
     head :created
   end

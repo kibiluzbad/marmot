@@ -26,6 +26,7 @@ class Build
      results = super
      results.each do |result|
        property_name = result[0]
+       
        ActionCable.server.broadcast 'messages',
                                     property: property_name,
                                     oldValue: result[1][0],

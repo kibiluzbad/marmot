@@ -1,6 +1,9 @@
 image: ruby
 ruby_version: '2.3.1'
+setup:
+  - curl -sL https://deb.nodesource.com/setup_6.x | -E bash -
+  - apt-get install -y nodejs
 build:
   - bundle install
 test:
-  - bundle exec rake test
+  - bundle exec rspec

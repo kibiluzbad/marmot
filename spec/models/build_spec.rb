@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Build, type: :model do
-  it { should validate_presence_of(:commit) }
+  xit { should validate_presence_of(:commit) }
 
-  it 'build exec project should load build config' do
+  xit 'build exec project should load build config' do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
@@ -20,7 +20,7 @@ RSpec.describe Build, type: :model do
 
   end
 
-  it 'build exec should set buildconfig language_version' do
+  xit 'build exec should set buildconfig language_version' do
     # TODO: Use factory girl
     
     project = Project.create(name: 'Node Test Project',
@@ -36,7 +36,7 @@ RSpec.describe Build, type: :model do
     expect(new_build.build_config.node_version).to eq('7.0.0')
   end
 
-  it 'build exec should set buildconfig language' do
+  xit 'build exec should set buildconfig language' do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
@@ -53,7 +53,7 @@ RSpec.describe Build, type: :model do
 
   end
 
-  it 'build exec should set buildconfig image' do
+  xit 'build exec should set buildconfig image' do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
@@ -70,7 +70,7 @@ RSpec.describe Build, type: :model do
 
   end
 
-  it 'build exec should set buildconfig build_steps' do
+  xit 'build exec should set buildconfig build_steps' do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
@@ -87,7 +87,7 @@ RSpec.describe Build, type: :model do
 
   end
 
-  it 'build exec should set buildconfig test_steps' do
+  xit 'build exec should set buildconfig test_steps' do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')
@@ -104,7 +104,7 @@ RSpec.describe Build, type: :model do
 
   end
 
-  it 'build exec should set buildconfig setup_steps' do
+  xit 'build exec should set buildconfig setup_steps' do
     # TODO: Use factory girl
     project = Project.create(name: 'Node Test Project',
                              language: 'node')

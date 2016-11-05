@@ -8,9 +8,6 @@ class BuildJob < ApplicationJob
 
   def perform(*args)
     arg = args[0]
-    ActionCable.server.broadcast('messages', property: 'status',
-                                             oldValue: 'test',
-                                             newValue: 'test1')
     project = Project.where(name: arg[:project]).first
 
     build = Build.create(project: project,

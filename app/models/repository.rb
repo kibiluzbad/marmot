@@ -24,4 +24,9 @@ class Repository
     clone(commit) if @git.nil?
     @git.show(commit, 'marmot.yml')
   end
+
+  def get_path(commit)
+    repos_path = File.expand_path('repos')
+    File.join(repos_path, commit)
+  end
 end

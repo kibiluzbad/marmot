@@ -46,7 +46,7 @@ module MarmotBuild
       self.status = 'running'
       save
       build_error = false
-      container.exec(commands) do |stream, chunk|
+      container.exec(commands, wait: 3600) do |stream, chunk|
 
         build_error = true if stream == :stderr
         self.output += "\e[31m#{chunk}\e[0m" if build_error
@@ -59,7 +59,7 @@ module MarmotBuild
         commands.push(*c.split(' '))
       end
 
-      container.exec(commands) do |stream, chunk|
+      container.exec(commands, wait: 3600) do |stream, chunk|
         build_error = true if stream == :stderr
         self.output += "\e[31m#{chunk}\e[0m" if build_error
         self.output += chunk unless build_error 

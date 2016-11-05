@@ -24,13 +24,25 @@ module MarmotBuild
     end
 
     def run
+      build_error = false
       path = File.expand_path('../../../builds', __FILE__)
       self.output = ''
       image = Docker::Image.build_from_dir(path, dockerfile: id) do |v|
-        if (log = JSON.parse(v)) && log.key?('stream')
+        log = JSON.parse(v)
+        if log && log.key?('stream')
           self.output += log['stream']
           save
+        elsif log && log.key?('error')
+          self.output += log['error']
+          build_error = true
+          save
         end
+      end
+
+      if build_error
+        self.status = 'failed'
+        save
+        return nil
       end
 
       commands = []
@@ -45,13 +57,19 @@ module MarmotBuild
       container.start
       self.status = 'running'
       save
-      build_error = false
+      
       container.exec(commands, wait: 3600) do |stream, chunk|
 
         build_error = true if stream == :stderr
         self.output += "\e[31m#{chunk}\e[0m" if build_error
         self.output += chunk unless build_error 
         save
+      end
+
+      if build_error
+        self.status = 'failed'
+        save
+        return nil
       end
 
       commands = []

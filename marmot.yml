@@ -1,7 +1,9 @@
 image: ruby
 ruby_version: '2.3.1'
 setup:
-  - curl -sL https://deb.nodesource.com/setup_6.x | -E bash -
+  - apt-get update -y
+  - apt-get install build-essential
+  - curl -sL https://deb.nodesource.com/setup | bash -
   - apt-get install -y nodejs
 build:
   - bundle install

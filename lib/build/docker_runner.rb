@@ -24,72 +24,79 @@ module MarmotBuild
     end
 
     def run
-      build_error = false
-      path = File.expand_path('../../../builds', __FILE__)
-      self.output = ''
-      image = Docker::Image.build_from_dir(path, dockerfile: id) do |v|
-        log = JSON.parse(v)
-        if log && log.key?('stream')
-          self.output += log['stream']
+      begin
+        build_error = false
+        path = File.expand_path('../../../builds', __FILE__)
+        self.output = ''
+        image = Docker::Image.build_from_dir(path, dockerfile: id) do |v|
+          log = JSON.parse(v)
+          if log && log.key?('stream')
+            self.output += log['stream']
+            save
+          elsif log && log.key?('error')
+            self.output += log['error']
+            build_error = true
+            save
+          end
+        end
+
+        if build_error
+          self.status = 'failed'
           save
-        elsif log && log.key?('errorDetail')
-          self.output += log['errorDetail']
-          build_error = true
+          return nil
+        end
+
+        commands = []
+
+        build_config.build_steps.each do |c|
+          commands.push(*c.split(' '))
+        end
+
+        container = Docker::Container.create(Image: image.id,
+                                            Cmd: ['bash'],
+                                            Tty: true)
+        container.start
+        self.status = 'running'
+        save
+        
+        container.exec(commands, wait: 3600) do |stream, chunk|
+
+          build_error = true if stream == :stderr
+          self.output += "\e[31m#{chunk}\e[0m" if build_error
+          self.output += chunk unless build_error 
           save
         end
-      end
 
-      if build_error
-        self.status = 'failed'
+        if build_error
+          self.status = 'failed'
+          save
+          return nil
+        end
+
+        commands = []
+        build_config.test_steps.each do |c|
+          commands.push(*c.split(' '))
+        end
+
+        container.exec(commands, wait: 3600) do |stream, chunk|
+          build_error = true if stream == :stderr
+          self.output += "\e[31m#{chunk}\e[0m" if build_error
+          self.output += chunk unless build_error 
+          save
+        end
+
+        self.status = 'success' unless build_error
+        self.status = 'failed' if build_error
         save
-        return nil
+        container.stop
+        container.delete
+        image.id
+      rescue Exception => e
+          self.status = 'failed'
+          self.output += e.message
+          puts e
+          save
       end
-
-      commands = []
-
-      build_config.build_steps.each do |c|
-        commands.push(*c.split(' '))
-      end
-
-      container = Docker::Container.create(Image: image.id,
-                                           Cmd: ['bash'],
-                                           Tty: true)
-      container.start
-      self.status = 'running'
-      save
-      
-      container.exec(commands, wait: 3600) do |stream, chunk|
-
-        build_error = true if stream == :stderr
-        self.output += "\e[31m#{chunk}\e[0m" if build_error
-        self.output += chunk unless build_error 
-        save
-      end
-
-      if build_error
-        self.status = 'failed'
-        save
-        return nil
-      end
-
-      commands = []
-      build_config.test_steps.each do |c|
-        commands.push(*c.split(' '))
-      end
-
-      container.exec(commands, wait: 3600) do |stream, chunk|
-        build_error = true if stream == :stderr
-        self.output += "\e[31m#{chunk}\e[0m" if build_error
-        self.output += chunk unless build_error 
-        save
-      end
-
-      self.status = 'success' unless build_error
-      self.status = 'failed' if build_error
-      save
-      container.stop
-      container.delete
-      image.id
     end
   end
 end

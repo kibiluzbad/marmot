@@ -1,0 +1,32 @@
+version: '2'
+services:
+  rethinkdb:
+    image: rethinkdb
+  redis:
+    image: redis
+  marmot:
+    build: .
+    command: 'bundle exec rails s'
+    volumes:
+      - .:/app/current
+    working_dir: /app/current
+    environment:
+      PORT: 3000
+      CABLE_URI: 'redis://redis:6379/1'
+      REDIS_URL: 'redis://redis:6379/12'
+      RETHINKDB_URL: 'rethinkdb://rethinkdb:28015/marmot'
+      ORIGINS_WHITELIST: 'http://localhost:4200'
+    ports:
+      - "3000:3000"
+  buildworker:
+    build: .
+    command: 'bundle exec sidekiq -q default'
+    volumes:
+      - .:/app/current
+    working_dir: /app/current
+    environment:
+      PORT: 3000
+      CABLE_URI: 'redis://redis:6379/1'
+      REDIS_URL: 'redis://redis:6379/12'
+      RETHINKDB_URL: 'rethinkdb://rethinkdb:28015/marmot'
+      ORIGINS_WHITELIST: 'http://localhost:4200'

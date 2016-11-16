@@ -2,6 +2,10 @@ version: '2'
 services:
   rethinkdb:
     image: rethinkdb
+    volumes:
+      - .:/data
+    ports:
+      - "8080:8080"
   redis:
     image: redis
   marmot:
@@ -14,7 +18,7 @@ services:
       PORT: 3000
       CABLE_URI: 'redis://redis:6379/1'
       REDIS_URL: 'redis://redis:6379/12'
-      RETHINKDB_URL: 'rethinkdb://rethinkdb:28015/marmot'
+      RETHINKDB_URL: 'rethinkdb://rethinkdb:28015/marmot_development'
       ORIGINS_WHITELIST: 'http://localhost:4200'
     ports:
       - "3000:3000"
@@ -23,10 +27,11 @@ services:
     command: 'bundle exec sidekiq -q default'
     volumes:
       - .:/app/current
+      - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /app/current
     environment:
       PORT: 3000
       CABLE_URI: 'redis://redis:6379/1'
       REDIS_URL: 'redis://redis:6379/12'
-      RETHINKDB_URL: 'rethinkdb://rethinkdb:28015/marmot'
+      RETHINKDB_URL: 'rethinkdb://rethinkdb:28015/marmot_development'
       ORIGINS_WHITELIST: 'http://localhost:4200'

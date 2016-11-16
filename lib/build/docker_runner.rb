@@ -32,8 +32,8 @@ module MarmotBuild
         if log && log.key?('stream')
           self.output += log['stream']
           save
-        elsif log && log.key?('error')
-          self.output += log['error']
+        elsif log && log.key?('errorDetail')
+          self.output += log['errorDetail']
           build_error = true
           save
         end

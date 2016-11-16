@@ -1,5 +1,5 @@
-image: ruby
-ruby_version: '2.3.1'
+image: tortxof/ruby-node
+ruby_version: 'latest'
 build:
   - bundle install
 test:

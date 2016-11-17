@@ -1,29 +1,19 @@
 require 'docker'
 
 module MarmotBuild
-  class DockerPipeline
-    attr_reader :commands, :build, :container
-    def initialize(*attrs)
-      @commands= attrs[:commands]
-      @build = attrs[:build]
-      @container = attrs[:container]
-    end
-
-    def exec
-    end
-  end
 
   class BuildImage 
     attr_accessor :build
-    def initialize(*attrs)
-      @build = attrs[:build]
+    def initialize(attrs)
+      attrs.each { |k, v| public_send("#{k}=", v) }
     end 
   
-    def build 
+    def exec 
+      puts build
       build_error = false
       path = File.expand_path('../../../builds', __FILE__)
       build.output = ''
-      image = Docker::Image.build_from_dir(path, dockerfile: id) do |v|
+      image = Docker::Image.build_from_dir(path, dockerfile: build.id) do |v|
         log = JSON.parse(v)
         if log && log.key?('stream')
           build.output += log['stream']
@@ -45,10 +35,10 @@ module MarmotBuild
   end
 
   class CreateContainer
-    attr_reader :image
+    attr_accessor :image
 
-    def initialize(image)
-      @image = image
+    def initialize(attrs)
+      attrs.each { |k, v| public_send("#{k}=", v) }
     end
 
     def exec
@@ -61,10 +51,10 @@ module MarmotBuild
   end
 
   class KillContainer
-    attr_reader :container
+    attr_accessor :container
 
-    def initialize(container)
-      @container = container
+    def initialize(attrs)
+      attrs.each { |k, v| public_send("#{k}=", v) }
     end
 
     def exec
@@ -74,7 +64,12 @@ module MarmotBuild
     end
   end
 
-  class ExecCommand < DockerPipeline
+  class ExecCommand
+    attr_accessor :commands, :build, :container
+
+    def initialize(attrs)
+      attrs.each { |k, v| public_send("#{k}=", v) }
+    end
 
     def exec
       build_error = false
@@ -118,28 +113,33 @@ module MarmotBuild
     end
 
     def run
-      begin
-        image = BuildImage.new(build: self).build
+      # begin
+        image = BuildImage.new(build: self).exec
+        return nil if image.nil?
         container = CreateContainer.new(image: image).exec
 
-        [build_config.build_steps, build_config.test_steps].each do |commands|
+        [build_config.build_steps || [],
+         build_config.test_steps || []].each do |commands|
           ExecCommand.new(commands: map_commands(commands),
-                          build: build,
+                          build: self,
                           container: container).exec
         end
         KillContainer.new(container: container).exec
         image.id
-      rescue StandardError => e
-          self.status = 'failed'
-          self.output = '' if self.output.nil? 
-          self.output += e.message
-          puts e
-          save
-      end
+      # rescue StandardError => e
+      #     self.status = 'failed'
+      #     self.output = '' if self.output.nil? 
+      #     self.output += e.message
+      #     save
+      #     Rails.logger.fatal e
+      # end
     end
 
     def map_commands(commands)
-      commands.map { |c| commands.push(*c.split(' ')) }
+      result = []
+      commands.each { |c| result.push(*c.split(' ')) }
+      
+      result
     end
   end
 end

@@ -3,4 +3,4 @@ ruby_version: 'latest'
 build:
   - bundle install
 test:
-  - bundle exec rspec
+  - bundle exec rails test

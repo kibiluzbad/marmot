@@ -48,12 +48,12 @@ RSpec.configure do |config|
   config.shared_context_metadata_behavior = :apply_to_host_groups
 
   config.before(:all) do
-    #NoBrainer.sync_schema
+    NoBrainer.sync_schema
   end
 
   config.before(:each) do
-    # NoBrainer.purge!
-    # NoBrainer::Loader.cleanup
+    NoBrainer.purge!
+    NoBrainer::Loader.cleanup
   end
 
 # The settings below are suggested to provide a good initial experience

@@ -1,18 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe Build, type: :model do
-  xit { should validate_presence_of(:commit) }
+  it { should validate_presence_of(:commit) }
 
-  xit 'build exec project should load build config' do
+  it 'build exec project should load build config' do
     # TODO: Use factory girl
-    project = Project.create(name: 'Node Test Project',
-                             language: 'node')
-    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+    project = Project.create(name: 'Marmot',
+                             language: 'ruby')
+    repo = Repository.create(url: 'https://github.com/kibiluzbad/marmot.git',
                              project: project)
 
-    new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
+    new_build = Build.create(commit: '412f93baf924187b077f57c90a4fa01b8839de7e',
                              project: project,
-                             marmot_file_path: File.expand_path('../../../test-project/marmot.yml', __FILE__))
+                             marmot_file_path: File.expand_path('../../../marmot.yml', __FILE__))
 
     new_build.exec
 
@@ -20,104 +20,104 @@ RSpec.describe Build, type: :model do
 
   end
 
-  xit 'build exec should set buildconfig language_version' do
+  it 'build exec should set buildconfig language_version' do
     # TODO: Use factory girl
     
-    project = Project.create(name: 'Node Test Project',
-                             language: 'node')
-    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+    project = Project.create(name: 'Marmot',
+                             language: 'ruby')
+    repo = Repository.create(url: 'https://github.com/kibiluzbad/marmot.git',
                              project: project)                         
-    new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
+    new_build = Build.create(commit: '412f93baf924187b077f57c90a4fa01b8839de7e',
                              project: project,
-                             marmot_file_path: File.expand_path('../../../test-project/marmot.yml', __FILE__))
+                             marmot_file_path: File.expand_path('../../../marmot.yml', __FILE__))
 
     new_build.exec
 
-    expect(new_build.build_config.node_version).to eq('7.0.0')
+    expect(new_build.build_config.ruby_version).to eq('latest')
   end
 
-  xit 'build exec should set buildconfig language' do
+  it 'build exec should set buildconfig language' do
     # TODO: Use factory girl
-    project = Project.create(name: 'Node Test Project',
-                             language: 'node')
-    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+    project = Project.create(name: 'Marmot',
+                             language: 'ruby')
+    repo = Repository.create(url: 'https://github.com/kibiluzbad/marmot.git',
                              project: project)
 
-    new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
+    new_build = Build.create(commit: '412f93baf924187b077f57c90a4fa01b8839de7e',
                              project: project,
-                             marmot_file_path: File.expand_path('../../../test-project/marmot.yml', __FILE__))
+                             marmot_file_path: File.expand_path('../../../marmot.yml', __FILE__))
 
     new_build.exec
 
-    expect(new_build.build_config.language).to eq('node')
-
-  end
-
-  xit 'build exec should set buildconfig image' do
-    # TODO: Use factory girl
-    project = Project.create(name: 'Node Test Project',
-                             language: 'node')
-    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
-                             project: project)
-
-    new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
-                             project: project,
-                             marmot_file_path: File.expand_path('../../../test-project/marmot.yml', __FILE__))
-
-    new_build.exec
-
-    expect(new_build.build_config.image).to eq('node')
+    expect(new_build.build_config.language).to eq('ruby')
 
   end
 
-  xit 'build exec should set buildconfig build_steps' do
+  it 'build exec should set buildconfig image' do
     # TODO: Use factory girl
-    project = Project.create(name: 'Node Test Project',
-                             language: 'node')
-    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+    project = Project.create(name: 'Marmot',
+                             language: 'ruby')
+    repo = Repository.create(url: 'https://github.com/kibiluzbad/marmot.git',
                              project: project)
 
-    new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
+    new_build = Build.create(commit: '412f93baf924187b077f57c90a4fa01b8839de7e',
                              project: project,
-                             marmot_file_path: File.expand_path('../../../test-project/marmot.yml', __FILE__))
+                             marmot_file_path: File.expand_path('../../../marmot.yml', __FILE__))
 
     new_build.exec
 
-    expect(new_build.build_config.build_steps).to include('npm install')
+    expect(new_build.build_config.image).to eq('tortxof/ruby-node')
 
   end
 
-  xit 'build exec should set buildconfig test_steps' do
+  it 'build exec should set buildconfig build_steps' do
     # TODO: Use factory girl
-    project = Project.create(name: 'Node Test Project',
-                             language: 'node')
-    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+    project = Project.create(name: 'Marmot',
+                             language: 'ruby')
+    repo = Repository.create(url: 'https://github.com/kibiluzbad/marmot.git',
                              project: project)
 
-    new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
+    new_build = Build.create(commit: '412f93baf924187b077f57c90a4fa01b8839de7e',
                              project: project,
-                             marmot_file_path: File.expand_path('../../../test-project/marmot.yml', __FILE__))
+                             marmot_file_path: File.expand_path('../../../marmot.yml', __FILE__))
 
     new_build.exec
 
-    expect(new_build.build_config.test_steps).to include('npm test')
+    expect(new_build.build_config.build_steps).to include('bundle install')
 
   end
 
-  xit 'build exec should set buildconfig setup_steps' do
+  it 'build exec should set buildconfig test_steps' do
     # TODO: Use factory girl
-    project = Project.create(name: 'Node Test Project',
-                             language: 'node')
-    repo = Repository.create(url: 'https://github.com/sequelize/express-example.git',
+    project = Project.create(name: 'Marmot',
+                             language: 'ruby')
+    repo = Repository.create(url: 'https://github.com/kibiluzbad/marmot.git',
                              project: project)
 
-    new_build = Build.create(commit: '2a46156e99f8207601ba1fb578bd5c5dec6c92f5',
+    new_build = Build.create(commit: '412f93baf924187b077f57c90a4fa01b8839de7e',
                              project: project,
-                             marmot_file_path: File.expand_path('../../../test-project/marmot.yml', __FILE__))
+                             marmot_file_path: File.expand_path('../../../marmot.yml', __FILE__))
 
     new_build.exec
 
-    expect(new_build.build_config.setup_steps).to include('npm update -g npm')
+    expect(new_build.build_config.test_steps).to include('bundle exec rspec')
+
+  end
+
+  it 'build exec should set buildconfig setup_steps' do
+    # TODO: Use factory girl
+    project = Project.create(name: 'Marmot',
+                             language: 'ruby')
+    repo = Repository.create(url: 'https://github.com/kibiluzbad/marmot.git',
+                             project: project)
+
+    new_build = Build.create(commit: '412f93baf924187b077f57c90a4fa01b8839de7e',
+                             project: project,
+                             marmot_file_path: File.expand_path('../../../marmot.yml', __FILE__))
+
+    new_build.exec
+
+    expect(new_build.build_config.setup_steps).to be nil
 
   end
 end

@@ -12,19 +12,19 @@ RSpec.describe BuildConfig, type: :model do
   end
 
   context 'when calling laguage version' do
-    xit 'set and get <language>_version' do
+    it 'set and get <language>_version' do
       version = '6.6.0'
       build_config.node_version(version)
       node_version = build_config.node_version
       expect(node_version).to eq version
     end
 
-    xit 'responds to <language>_version' do
+    it 'responds to <language>_version' do
       expect(build_config.respond_to?('node_version')).to be true
     end
 
     context 'with invalid language' do
-      xit 'raise NoMethodError exception' do
+      it 'raise NoMethodError exception' do
         expect do
           build_config.ruby_version('2.3.1')
         end.to raise_error(NoMethodError)

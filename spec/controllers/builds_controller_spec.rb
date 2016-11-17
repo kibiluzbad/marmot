@@ -3,19 +3,18 @@ require 'rails_helper'
 RSpec.describe BuildsController, type: :controller do
 
   describe 'POST #create' do
-    xit 'returns http no content' do
-      post :create, params: { commit: '4fedbeb547d5bd71a421c57622b71b0743971555'}
-      expect(response).to have_http_status(:no_content)
+    it 'returns http created' do
+      post :create, params: { commit: '412f93baf924187b077f57c90a4fa01b8839de7e',
+                              project: 'marmot'}
+      expect(response).to have_http_status(:created)
     end
 
     describe 'without commit parameter' do
-      xit 'returns unprocessable entity' do
+      it 'returns unprocessable entity' do
         post :create
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
-
-    it 'creates new build'
 
   end
 end

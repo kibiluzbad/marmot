@@ -9,7 +9,6 @@ module MarmotBuild
     end 
   
     def exec 
-      puts build
       build_error = false
       path = File.expand_path('../../../builds', __FILE__)
       build.output = ''
@@ -26,8 +25,7 @@ module MarmotBuild
       end
 
       if build_error
-        build.status = 'failed'
-        build.save
+        build.failed('')
         return nil
       end
       image
@@ -80,12 +78,7 @@ module MarmotBuild
         build.save
       end
 
-      if build_error
-        build.status = 'failed'
-        build.save
-        return nil
-      end
-      container
+      !build_error
     end
   end
 
@@ -113,26 +106,29 @@ module MarmotBuild
     end
 
     def run
-      # begin
+      begin
+        running
         image = BuildImage.new(build: self).exec
         return nil if image.nil?
         container = CreateContainer.new(image: image).exec
 
         [build_config.build_steps || [],
          build_config.test_steps || []].each do |commands|
-          ExecCommand.new(commands: map_commands(commands),
+          command_ok = ExecCommand.new(commands: map_commands(commands),
                           build: self,
                           container: container).exec
+          unless command_ok
+            failed
+            break
+          end                
         end
         KillContainer.new(container: container).exec
         image.id
-      # rescue StandardError => e
-      #     self.status = 'failed'
-      #     self.output = '' if self.output.nil? 
-      #     self.output += e.message
-      #     save
-      #     Rails.logger.fatal e
-      # end
+      rescue StandardError => e
+          failed(e.message)
+          puts e
+          Rails.logger.fatal e
+      end
     end
 
     def map_commands(commands)

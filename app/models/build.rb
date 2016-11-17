@@ -37,12 +37,33 @@ class Build
   end
 
   def exec
-    self.status = 'started'
-    
+    started
     project.repository.clone commit
     config = load_config
     build YAML.load(project.repository.get_marmot_file(commit))
     config.save
+  end
+
+  def started
+    self.status = 'started'
+    save
+  end
+
+  def running
+    self.status = 'running'
+    save
+  end
+
+  def success
+    self.status = 'success'
+    save
+  end
+
+  def failed(message = nil)
+    self.status = 'failed'
+    self.output = '' if output.nil?
+    self.output += message unless message.nil?
+    save
   end
 
   def method_missing(method_name, *args, &block)

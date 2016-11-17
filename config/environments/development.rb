@@ -34,7 +34,7 @@ Rails.application.configure do
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 
-  config.action_cable.allowed_request_origins = [ 'http://localhost:4200' ]
+  config.action_cable.allowed_request_origins = [ENV['ORIGINS_WHITELIST'] || 'http://localhost:4200']
 
   # Raise an error on page load if there are pending migrations.
   # config.active_record.migration_error = :page_load

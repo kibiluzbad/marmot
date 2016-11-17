@@ -72,7 +72,7 @@ module MarmotBuild
     def exec
       build_error = false
       container.exec(commands, wait: 3600) do |stream, chunk|
-        build_error = true if stream == :stderr
+        build_error = stream == :stderr
         build.output += "\e[31m#{chunk}\e[0m" if build_error
         build.output += chunk unless build_error
         build.save
@@ -117,11 +117,14 @@ module MarmotBuild
           command_ok = ExecCommand.new(commands: map_commands(commands),
                           build: self,
                           container: container).exec
+          puts "command_ok:#{command_ok}"
           unless command_ok
             failed
             break
           end                
         end
+
+        success if status != 'failed'
         KillContainer.new(container: container).exec
         image.id
       rescue StandardError => e

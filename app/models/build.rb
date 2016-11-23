@@ -10,7 +10,7 @@ class Build
   include NoBrainer::Document::Timestamps
   include MarmotBuild::DSL
 
-  METHODS_ALLOWED = ['version', 'image', 'build_steps', 'test_steps', 'setup_steps']
+  METHODS_ALLOWED = %w(version image build_steps test_steps setup_steps).freeze
 
   validates :commit, presence: true
 
@@ -22,48 +22,45 @@ class Build
   field :output, type: Text
   field :status, type: String
 
-  def changes
-     results = super
-     results.each do |result|
-       property_name = result[0]
-       
-       ActionCable.server.broadcast 'messages',
-                                    property: property_name,
-                                    oldValue: result[1][0],
-                                    newValue: result[1][1]
-
-     end
-     results
-  end
-
   def exec
     started
     project.repository.clone commit
     config = load_config
     build YAML.load(project.repository.get_marmot_file(commit))
     config.save
+    save
   end
 
   def started
     self.status = 'started'
-    save
+    broadcast_message property: :status,
+                      value: status
   end
 
   def running
     self.status = 'running'
-    save
+    broadcast_message property: :status,
+                      value: status
   end
 
   def success
     self.status = 'success'
-    save
+    broadcast_message property: :status,
+                      value: status
   end
 
   def failed(message = nil)
     self.status = 'failed'
+    append_to_log message
+    broadcast_message property: :status,
+                      value: status
+  end
+
+  def append_to_log(message)
     self.output = '' if output.nil?
     self.output += message unless message.nil?
-    save
+    broadcast_message property: :output,
+                      value: message
   end
 
   def method_missing(method_name, *args, &block)
@@ -82,5 +79,11 @@ class Build
 
   def load_config
     BuildConfig.create(build: self, language: project.language)
+  end
+
+  def broadcast_message(args)
+    ActionCable.server.broadcast 'messages',
+                                 property: args[:property],
+                                 newValue: args[:value]
   end
 end

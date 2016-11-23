@@ -13,7 +13,7 @@ class BuildJob < ApplicationJob
     build = Build.create(project: project,
                          commit: arg[:commit],
                          status: 'created')
-                         
+
     build.exec
   end
 end

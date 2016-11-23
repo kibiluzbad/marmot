@@ -36,7 +36,7 @@ gem 'docker-api'
 
 gem 'git'
 
-gem 'rack-cors', :require => 'rack/cors'
+gem 'rack-cors', require: 'rack/cors'
 
 gem 'sidekiq'
 

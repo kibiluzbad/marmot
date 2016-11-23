@@ -13,11 +13,10 @@ class BuildsController < ApplicationController
   def create
     return head :unprocessable_entity unless params[:commit].present?
     return head :unprocessable_entity unless params[:project].present?
-    
 
     BuildJob.perform_later project: params[:project],
                            commit: params[:commit]
-    
+
     head :created
   end
 end

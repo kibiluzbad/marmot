@@ -1,24 +1,23 @@
-# README
+# Marmot API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Run using docker
 
-Things you may want to cover:
+> You must have docker and docker-compose installed.
 
-* Ruby version
+Run the folowing code on your terminal:
 
-* System dependencies
+```bash
+docker-compose up rethinkdb redis marmot buildworker
+```
 
-* Configuration
+Following ports must be available:
+* 3000
+* 8080
 
-* Database creation
+Your docker sock file must exist at:
 
-* Database initialization
+```bash
+/var/run/docker.sock
+```
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+You can access [http://localhost:3000/sidekiq/](http://localhost:3000/sidekiq/) to access sidekiq frontend.

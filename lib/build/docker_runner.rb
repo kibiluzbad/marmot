@@ -1,126 +1,96 @@
+#
+# Created on Fri Nov 25 2016
+#
+# Copyright (c) 2016 Your Company
+#
+
 require 'docker'
-
-module HasProperties
-  attr_accessor :props
-
-  def has_properties(*args)
-    @props = args
-    instance_eval { attr_reader *args }
-  end
-
-  def self.included(base)
-    base.extend self
-  end
-
-  def initialize(args)
-    args.each do |k, v|
-      instance_variable_set "@#{k}", v if self.class.props.member?(k)
-    end if args.is_a? Hash
-  end
-end
+require 'build/build_image'
+require 'build/create_container'
+require 'build/exec_command'
+require 'build/kill_container'
 
 module MarmotBuild
-  class BuildImage
-    include HasProperties
-
-    has_properties :build
-
-    def exec
-      @build_error = false
-      path = File.expand_path('../../../builds', __FILE__)
-      image = create_image path
-
-      if @build_error
-        build.failed('')
-        return nil
-      end
-      image
-    end
-
-    private
-
-    def create_image(path)
-      Docker::Image.build_from_dir(path, dockerfile: build.id) do |v|
-        log = JSON.parse(v)
-        if log && log.key?('stream')
-          build.append_to_log log['stream']
-        elsif log && log.key?('errorDetail')
-          build.append_to_log log['errorDetail']
-          @build_error = true
-        end
-      end
-    end
-  end
-
-  class CreateContainer
-    include HasProperties
-
-    has_properties :image
-
-    def exec
-      container = Docker::Container.create(Image: image.id,
-                                           Cmd: ['bash'],
-                                           Tty: true)
-      container.start
-      container
-    end
-  end
-
-  class KillContainer
-    include HasProperties
-
-    has_properties :container
-
-    def exec
-      return nil if container.nil?
-      container.stop
-      container.delete
-    end
-  end
-
-  class ExecCommand
-    include HasProperties
-
-    has_properties :commands, :build, :container
-
-    def exec
-      build_error = false
-      container.exec(commands, wait: 3600) do |stream, chunk|
-        build_error = stream == :stderr
-        build.append_to_log("\e[31m#{chunk}\e[0m") if build_error
-        build.append_to_log(chunk) unless build_error
-      end
-
-      !build_error
-    end
-  end
-
+  # Public: Docker runner build methods. Should be used within Build entity.
+  #
+  # Examples:
+  #
+  #   class Build
+  #     ...
+  #     include MarmotBuild::DSL
+  #     ...
+  #     has_one :build_config
+  #     field :marmot_file_path, type: String
+  #     field :output, type: Text
+  #
+  #     def started
+  #       ...
+  #     end
+  #
+  #     def running
+  #       ...
+  #     end
+  #
+  #     def success
+  #       ...
+  #     end
+  #
+  #     def failed(message = nil)
+  #       ...
+  #     end
+  #
+  #     def append_to_log(message)
+  #       ...
+  #     end
+  #
+  #   end
+  #   module DSL
+  #     include MarmotBuild::DockerRunner
+  #
+  #     def build(yaml_file)
+  #       ...
+  #       create_docker_file
+  #       run
+  #       ...
+  #     end
+  #   end
   module DockerRunner
+    # Public: Create docker file for curretn build using build_config property
+    # values.
+    #
+    # Returns path to Dockerfile.
     def create_docker_file
-      unless build_config.setup_steps.nil?
-        build_config.setup_steps.each do |step|
-          content += "RUN #{step}\r\n"
-        end
-      end
-
       path = File.expand_path("../../../builds/#{id}", __FILE__)
-      File.open(path, 'wb') { |f| f.write(set_content) }
+      File.open(path, 'wb') { |f| f.write(add_build_steps(set_content)) }
       path
     end
 
+    # Public: Run build by creating Docker image, using build's Dockerfile.
+    # Then a container is created to run build_steps and build_tests commands.
+    # After that kills container. Log is streamed to Build object.
+    #
+    # Returns Docker Image id.
     def run
       running
-      image = BuildImage.new(build: self).exec
+      image = MarmotBuild::BuildImage.new(build: self).exec
       return nil if image.nil?
-      container = CreateContainer.new(image: image).exec
+      container = MarmotBuild::CreateContainer.new(image: image).exec
       exec_build_and_tests container
       success if status != 'failed'
-      KillContainer.new(container: container).exec
       image.id
     rescue StandardError => e
       failed(e.message)
+    ensure
+      MarmotBuild::KillContainer.new(container: container).exec unless container.nil?
     end
 
+
+    private
+
+    # Private: Split command string into an array creating an array with each word
+    # in all commands.
+    #
+    # Returns new Array with commands.
     def map_commands(commands)
       result = []
       commands.each { |c| result.push(*c.split(' ')) }
@@ -128,8 +98,12 @@ module MarmotBuild
       result
     end
 
+    # Private: Set Dockerfile content.
+    #
+    # Returns Dockerfile content.
     def set_content
-      content = "FROM #{build_config.image}:#{build_config.version || 'latest'}\r\n"\
+      version = build_config.version || 'latest'
+      content = "FROM #{build_config.image}:#{version}\r\n"\
       "RUN apt-get update\r\n"\
       "RUN apt-get install git -y\r\n"\
       "RUN mkdir -p /app/current\r\n"\
@@ -139,17 +113,37 @@ module MarmotBuild
       content
     end
 
+    # Private: Adds build_steps (if any) to Dockerfile content.
+    #
+    # content - Dockerfile content.
+    #
+    # Returns Dockerfile content.
+    def add_build_steps(content)
+      unless build_config.setup_steps.nil?
+        build_config.setup_steps.each do |step|
+          content += "RUN #{step}\r\n"
+        end
+      end
+      content
+    end
+
+    # Private: Execure buils_steps and test_setps by calling MarmotBuild::ExecCommand.
+    #
+    # container - Docker container to run commands.
+    #
+    # Returns nothing.
     def exec_build_and_tests(container)
       [build_config.build_steps || [],
        build_config.test_steps || []].each do |commands|
-        command_ok = ExecCommand.new(commands: map_commands(commands),
-                                     build: self,
-                                     container: container).exec
-        unless command_ok
+        ok = MarmotBuild::ExecCommand.new(commands: map_commands(commands),
+                                          build: self,
+                                          container: container).exec
+        unless ok
           failed
           break
         end
       end
     end
+
   end
 end

@@ -1,5 +1,7 @@
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#
+# Created on Fri Nov 25 2016
+#
+# Copyright (c) 2016 Your Company
 #
 
 # == ApplicationController

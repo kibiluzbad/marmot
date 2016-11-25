@@ -1,8 +1,10 @@
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#
+# Created on Fri Nov 25 2016
+#
+# Copyright (c) 2016 Your Company
 #
 
-# == BuildConfig model
+# Public: BuildConfig entity.
 class BuildConfig
   include NoBrainer::Document
   include NoBrainer::Document::Timestamps
@@ -17,6 +19,7 @@ class BuildConfig
   field :test_steps,        type: Set
   field :deploy, type: Set
 
+  # Public: Overwrites method_missing to answer to <language>_version property.
   def method_missing(method_name, *args, &block)
     if /#{language}_version/ =~ method_name
       if args
@@ -29,6 +32,7 @@ class BuildConfig
     end
   end
 
+  # Public: Overwrites respond_to_missing to answer to <language>_version property.
   def respond_to_missing?(method_name, include_private = false)
     /#{language}_version/ =~ method_name || super
   end
